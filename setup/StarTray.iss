@@ -56,4 +56,4 @@ Name: "{autodesktop}\StarTray Temperature"; Filename: "{app}\StarTray.exe"; Task
 Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "StarTray"; ValueData: """{app}\StarTray.exe"""; Tasks: startupicon; Flags: uninsdeletevalue
 
 [Run]
-Filename: "{app}\StarTray.exe"; Description: "{cm:LaunchProgram,StarTray Temperature}"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\StarTray.exe"; Description: "{cm:LaunchProgram,StarTray Temperature}"; Flags: nowait postinstall skipifsilent shellexec
