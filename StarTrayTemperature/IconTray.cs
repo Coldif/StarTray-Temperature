@@ -17,7 +17,7 @@ namespace StarTrayTemperature
     public partial class IconTray : Form
     {
         private string AppLabel = "StarTray";
-        private string VersionLabel = "v1.1";
+        private string VersionLabel = "v1.2";
         private string CopyrightLabel = "© justinnas";
 
 
@@ -60,24 +60,38 @@ namespace StarTrayTemperature
             fontCollection.AddFontFile(Path.Combine(resourcesFolder, "font.ttf"));
             customFontFamily = fontCollection.Families[0];
 
-            // Initialize the icons
+            // Initialize CPU icons (multiple supported)
             if (showCPU)
             {
-                StartCPU();
+                StartCPUDevices();
             }
 
+            // Initialize GPU icons (multiple supported)
             if (showGPU)
             {
-                StartGPU();
+                StartGPUDevices();
             }
 
             // Start CPU icon if both of the icons are somehow turned off
-            else if (!showCPU && !showGPU)
+            bool anyCPUCPUVisible = false;
+            foreach (var cpu in cpuDevices)
             {
-                StartCPU();
+                if (cpu.Visible) { anyCPUCPUVisible = true; break; }
+            }
+            bool anyGPUVisible = false;
+            foreach (var gpu in gpuDevices)
+            {
+                if (gpu.Visible) { anyGPUVisible = true; break; }
             }
 
-            Application.Run();
+            if (!anyCPUCPUVisible && !anyGPUVisible)
+            {
+                showCPU = true;
+                StartCPUDevices();
+            }
+
+            this.Hide();
+            this.Visible = false;
         }
 
         private bool IsWindowsThemeLight()
@@ -108,6 +122,20 @@ namespace StarTrayTemperature
         {
             [DllImport("user32.dll", CharSet = CharSet.Auto)]
             public static extern bool DestroyIcon(IntPtr handle);
+        }
+
+        private static Color GetThermalColor(int temperature)
+        {
+            if (temperature < 40)
+                return Color.FromArgb(100, 200, 255);
+            else if (temperature < 60)
+                return Color.FromArgb(100, 255, 100);
+            else if (temperature < 70)
+                return Color.FromArgb(255, 255, 80);
+            else if (temperature < 80)
+                return Color.FromArgb(255, 170, 50);
+            else
+                return Color.FromArgb(255, 80, 80);
         }
     }
 }

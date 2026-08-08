@@ -1,3 +1,8 @@
 .vs/
-
 StarTrayTemperature/bin/
+StarTrayTemperature/obj/
+*.pdb
+crash.log
+setup/StarTraySetup-*.exe
+setup/StarTray-Portable-*.zip
+portable/

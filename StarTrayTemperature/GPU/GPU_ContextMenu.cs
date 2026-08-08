@@ -10,117 +10,102 @@ namespace StarTrayTemperature
 {
     public partial class IconTray : Form
     {
-        private ContextMenu contextMenu_GPU;
-        private MenuItem startupMenuItem_GPU;
-        private MenuItem showCPUMenuItem_GPU;
-        private MenuItem showGPUMenuItem_GPU;
-        private MenuItem changeScale_GPU;
-
-        private void InitializeGPUContextMenu()
+        private void InitializeGPUContextMenu(GPUDeviceState device, int deviceIndex)
         {
-            contextMenu_GPU = new ContextMenu();
+            device.ContextMenu = new ContextMenu();
 
-            List<string> gpuNames = GetGpuNames();
+            string headerLabel = gpuDevices.Count > 1
+                ? AppLabel + " (GPU " + (deviceIndex + 1) + ")"
+                : AppLabel + " (GPU)";
 
             // -- Header --
-            contextMenu_GPU.MenuItems.Add(new MenuItem(AppLabel + " (GPU)") { Enabled = false });
-            contextMenu_GPU.MenuItems.Add("-");
+            device.ContextMenu.MenuItems.Add(new MenuItem(headerLabel) { Enabled = false });
+            device.ContextMenu.MenuItems.Add("-");
 
             // ------------ Themes ------------
             MenuItem colorModes = new MenuItem("GPU theme");
 
             MenuItem lightMode = new MenuItem("Light Theme");
-            lightMode.Click += LightMode_GPU_Click;
+            lightMode.Click += (s, e) => ApplyGPUTheme("light", device, deviceIndex);
             colorModes.MenuItems.Add(lightMode);
 
             MenuItem darkMode = new MenuItem("Dark Theme");
-            darkMode.Click += DarkMode_GPU_Click;
+            darkMode.Click += (s, e) => ApplyGPUTheme("dark", device, deviceIndex);
             colorModes.MenuItems.Add(darkMode);
 
             MenuItem blue11Mode = new MenuItem("Blue11 Theme");
-            blue11Mode.Click += Blue11Mode_GPU_Click;
+            blue11Mode.Click += (s, e) => ApplyGPUTheme("blue11", device, deviceIndex);
             colorModes.MenuItems.Add(blue11Mode);
 
             colorModes.MenuItems.Add("-");
 
             MenuItem greenMode = new MenuItem("Green Theme");
-            greenMode.Click += GreenMode_GPU_Click;
+            greenMode.Click += (s, e) => ApplyGPUTheme("green", device, deviceIndex);
             colorModes.MenuItems.Add(greenMode);
 
             MenuItem redMode = new MenuItem("Red Theme");
-            redMode.Click += RedMode_GPU_Click;
+            redMode.Click += (s, e) => ApplyGPUTheme("red", device, deviceIndex);
             colorModes.MenuItems.Add(redMode);
 
             MenuItem blueMode = new MenuItem("Blue Theme");
-            blueMode.Click += BlueMode_GPU_Click;
+            blueMode.Click += (s, e) => ApplyGPUTheme("blue", device, deviceIndex);
             colorModes.MenuItems.Add(blueMode);
 
-            contextMenu_GPU.MenuItems.Add(colorModes);
+            colorModes.MenuItems.Add("-");
+
+            MenuItem thermalMode = new MenuItem("Thermal Theme");
+            thermalMode.Click += (s, e) => ApplyGPUTheme("thermal", device, deviceIndex);
+            colorModes.MenuItems.Add(thermalMode);
+
+            device.ContextMenu.MenuItems.Add(colorModes);
 
             // ------------ Global Options ------------
-
             MenuItem globalOptions = new MenuItem("Options");
 
             // -- Startup --
-            startupMenuItem_GPU = new MenuItem("Run on Startup");
-            startupMenuItem_GPU.Checked = IsTaskScheduled();
-            startupMenuItem_GPU.Click += RunOnStartup_Click;
-            globalOptions.MenuItems.Add(startupMenuItem_GPU);
+            device.StartupMenuItem = new MenuItem("Run on Startup");
+            device.StartupMenuItem.Checked = IsTaskScheduled();
+            device.StartupMenuItem.Click += RunOnStartup_Click;
+            globalOptions.MenuItems.Add(device.StartupMenuItem);
 
-            // -- Show GPU --
-            showGPUMenuItem_GPU = new MenuItem("Show GPU icon");
-            showGPUMenuItem_GPU.Checked = showGPU;
-            showGPUMenuItem_GPU.Click += ToggleGPU;
-            globalOptions.MenuItems.Add(showGPUMenuItem_GPU);
+            // -- Show this GPU --
+            device.ToggleMenuItem = new MenuItem("Show GPU " + (deviceIndex + 1) + " icon");
+            device.ToggleMenuItem.Checked = device.Visible;
+            device.ToggleMenuItem.Click += (s, e) => ToggleSpecificGPU(deviceIndex);
+            globalOptions.MenuItems.Add(device.ToggleMenuItem);
 
             // -- Show CPU --
-            showCPUMenuItem_GPU = new MenuItem("Show CPU icon");
-            showCPUMenuItem_GPU.Checked = showCPU;
-            showCPUMenuItem_GPU.Click += ToggleCPU;
-            globalOptions.MenuItems.Add(showCPUMenuItem_GPU);
+            device.ShowCPUMenuItem = new MenuItem("Show CPU icon");
+            device.ShowCPUMenuItem.Checked = showCPU;
+            device.ShowCPUMenuItem.Click += ToggleCPU;
+            globalOptions.MenuItems.Add(device.ShowCPUMenuItem);
 
             // -- Change Scale --
-            changeScale_GPU = new MenuItem("Change to Fahrenheit");
+            device.ChangeScaleMenuItem = new MenuItem("Change to Fahrenheit");
             if (useFahrenheit)
             {
-                changeScale_GPU.Text = "Change to Celsius";
+                device.ChangeScaleMenuItem.Text = "Change to Celsius";
             }
-            changeScale_GPU.Click += ChangeScale_Click;
-            globalOptions.MenuItems.Add(changeScale_GPU);
+            device.ChangeScaleMenuItem.Click += ChangeScale_Click;
+            globalOptions.MenuItems.Add(device.ChangeScaleMenuItem);
 
-            contextMenu_GPU.MenuItems.Add(globalOptions);
+            device.ContextMenu.MenuItems.Add(globalOptions);
 
             // -------------- More info --------------
-
             MenuItem information = new MenuItem("Info");
 
-            if (gpuNames.Count > 0)
-            {
-                if (gpuNames.Count > 1)
-                    information.MenuItems.Add(new MenuItem("Graphics cards:") { Enabled = false });
-                else
-                    information.MenuItems.Add(new MenuItem("Graphics card:") { Enabled = false });
-
-                foreach (string gpuName in gpuNames)
-                {
-                    information.MenuItems.Add(new MenuItem(gpuName) { Enabled = false });
-                }
-            }
-            else
-            {
-                information.MenuItems.Add(new MenuItem("GPU not detected") { Enabled = false });
-            }   
-
+            information.MenuItems.Add(new MenuItem("Graphics card:") { Enabled = false });
+            information.MenuItems.Add(new MenuItem(device.Info.Name) { Enabled = false });
             information.MenuItems.Add("-");
             information.MenuItems.Add(new MenuItem(AppLabel + " " + VersionLabel + " " + CopyrightLabel) { Enabled = false });
 
-            contextMenu_GPU.MenuItems.Add(information);
+            device.ContextMenu.MenuItems.Add(information);
 
             // ------------ Exit ------------
-            contextMenu_GPU.MenuItems.Add("-");
+            device.ContextMenu.MenuItems.Add("-");
             MenuItem exitMenuItem = new MenuItem("Exit");
             exitMenuItem.Click += ExitMenuItem_Click;
-            contextMenu_GPU.MenuItems.Add(exitMenuItem);
+            device.ContextMenu.MenuItems.Add(exitMenuItem);
         }
 
         static List<string> GetGpuNames()
@@ -134,6 +119,22 @@ namespace StarTrayTemperature
             }
 
             return gpuNames;
+        }
+
+        private void ToggleSpecificGPU(int deviceIndex)
+        {
+            if (deviceIndex < 0 || deviceIndex >= gpuDevices.Count) return;
+
+            var device = gpuDevices[deviceIndex];
+            device.Visible = !device.Visible;
+            device.NotifyIcon.Visible = device.Visible;
+
+            SetShowGPUSetting(deviceIndex, device.Visible);
+
+            if (device.ToggleMenuItem != null)
+                device.ToggleMenuItem.Checked = device.Visible;
+
+            GC.Collect();
         }
     }
 }

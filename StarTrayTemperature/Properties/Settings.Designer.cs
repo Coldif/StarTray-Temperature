@@ -9,20 +9,20 @@
 //------------------------------------------------------------------------------
 
 namespace StarTrayTemperature.Properties {
-    
-    
+
+
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "17.9.0.0")]
     internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
-        
+
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
-        
+
         public static Settings Default {
             get {
                 return defaultInstance;
             }
         }
-        
+
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("light")]
@@ -34,7 +34,7 @@ namespace StarTrayTemperature.Properties {
                 this["ColorMode_CPU"] = value;
             }
         }
-        
+
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("White")]
@@ -46,7 +46,7 @@ namespace StarTrayTemperature.Properties {
                 this["TextColor_CPU"] = value;
             }
         }
-        
+
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
@@ -58,7 +58,7 @@ namespace StarTrayTemperature.Properties {
                 this["UseFahrenheit"] = value;
             }
         }
-        
+
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
@@ -70,7 +70,7 @@ namespace StarTrayTemperature.Properties {
                 this["IconPath_CPU"] = value;
             }
         }
-        
+
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("light")]
@@ -82,7 +82,7 @@ namespace StarTrayTemperature.Properties {
                 this["ColorMode_GPU"] = value;
             }
         }
-        
+
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("White")]
@@ -94,7 +94,7 @@ namespace StarTrayTemperature.Properties {
                 this["TextColor_GPU"] = value;
             }
         }
-        
+
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
@@ -106,7 +106,7 @@ namespace StarTrayTemperature.Properties {
                 this["IconPath_GPU"] = value;
             }
         }
-        
+
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
@@ -118,7 +118,7 @@ namespace StarTrayTemperature.Properties {
                 this["showCPU"] = value;
             }
         }
-        
+
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
@@ -128,6 +128,102 @@ namespace StarTrayTemperature.Properties {
             }
             set {
                 this["showGPU"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("light")]
+        public string ColorMode_CPU_1 {
+            get {
+                return ((string)(this["ColorMode_CPU_1"]));
+            }
+            set {
+                this["ColorMode_CPU_1"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("White")]
+        public global::System.Drawing.Color TextColor_CPU_1 {
+            get {
+                return ((global::System.Drawing.Color)(this["TextColor_CPU_1"]));
+            }
+            set {
+                this["TextColor_CPU_1"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string IconPath_CPU_1 {
+            get {
+                return ((string)(this["IconPath_CPU_1"]));
+            }
+            set {
+                this["IconPath_CPU_1"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool showCPU_1 {
+            get {
+                return ((bool)(this["showCPU_1"]));
+            }
+            set {
+                this["showCPU_1"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("light")]
+        public string ColorMode_GPU_1 {
+            get {
+                return ((string)(this["ColorMode_GPU_1"]));
+            }
+            set {
+                this["ColorMode_GPU_1"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("White")]
+        public global::System.Drawing.Color TextColor_GPU_1 {
+            get {
+                return ((global::System.Drawing.Color)(this["TextColor_GPU_1"]));
+            }
+            set {
+                this["TextColor_GPU_1"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string IconPath_GPU_1 {
+            get {
+                return ((string)(this["IconPath_GPU_1"]));
+            }
+            set {
+                this["IconPath_GPU_1"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool showGPU_1 {
+            get {
+                return ((bool)(this["showGPU_1"]));
+            }
+            set {
+                this["showGPU_1"] = value;
             }
         }
     }

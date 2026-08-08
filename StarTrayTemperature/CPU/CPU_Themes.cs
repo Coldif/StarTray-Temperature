@@ -11,108 +11,104 @@ namespace StarTrayTemperature
 {
     public partial class IconTray : Form
     {
-        private void LightMode_CPU_Click(object sender, EventArgs e)
+        private void ApplyCPUTheme(string theme, CPUDeviceState device, int deviceIndex)
         {
-            ApplyCPUTheme("light");
-        }
-
-        private void DarkMode_CPU_Click(object sender, EventArgs e)
-        {
-            ApplyCPUTheme("dark");
-        }
-
-        private void Blue11Mode_CPU_Click(object sender, EventArgs e)
-        {
-            ApplyCPUTheme("blue11");
-        }
-
-        private void GreenMode_CPU_Click(object sender, EventArgs e)
-        {
-            ApplyCPUTheme("green");
-        }
-
-        private void RedMode_CPU_Click(object sender, EventArgs e)
-        {
-            ApplyCPUTheme("red");
-        }
-
-        private void BlueMode_CPU_Click(object sender, EventArgs e)
-        {
-            ApplyCPUTheme("blue");
-        }
-
-        private void ApplyCPUTheme(string theme)
-        {
-            if (CPU_colorMode != theme)
+            if (device.ColorMode != theme)
             {
-                CPU_colorMode = theme;
+                device.ColorMode = theme;
 
                 switch (theme)
                 {
                     case "light":
-                        CPU_Color = Color.FromArgb(255, 255, 255);
-                        CPU_Icon_Path = Path.Combine(Application.StartupPath, "Resources", "cpuicon.ico");
+                        device.TextColor = Color.FromArgb(255, 255, 255);
+                        device.IconPath = Path.Combine(Application.StartupPath, "Resources", "cpuicon.ico");
                         break;
                     case "dark":
-                        CPU_Color = Color.FromArgb(0, 0, 0);
-                        CPU_Icon_Path = Path.Combine(Application.StartupPath, "Resources", "cpuicon_dark.ico");
+                        device.TextColor = Color.FromArgb(0, 0, 0);
+                        device.IconPath = Path.Combine(Application.StartupPath, "Resources", "cpuicon_dark.ico");
                         break;
                     case "blue11":
-                        CPU_Color = Color.FromArgb(151, 234, 255);
-                        CPU_Icon_Path = Path.Combine(Application.StartupPath, "Resources", "cpuicon_blue11.ico");
+                        device.TextColor = Color.FromArgb(151, 234, 255);
+                        device.IconPath = Path.Combine(Application.StartupPath, "Resources", "cpuicon_blue11.ico");
                         break;
                     case "green":
-                        CPU_Color = Color.FromArgb(189, 255, 71);
-                        CPU_Icon_Path = Path.Combine(Application.StartupPath, "Resources", "cpuicon_green.ico");
+                        device.TextColor = Color.FromArgb(189, 255, 71);
+                        device.IconPath = Path.Combine(Application.StartupPath, "Resources", "cpuicon_green.ico");
                         break;
                     case "red":
-                        CPU_Color = Color.FromArgb(255, 161, 150);
-                        CPU_Icon_Path = Path.Combine(Application.StartupPath, "Resources", "cpuicon_red.ico");
+                        device.TextColor = Color.FromArgb(255, 161, 150);
+                        device.IconPath = Path.Combine(Application.StartupPath, "Resources", "cpuicon_red.ico");
                         break;
                     case "blue":
-                        CPU_Color = Color.FromArgb(130, 228, 255);
-                        CPU_Icon_Path = Path.Combine(Application.StartupPath, "Resources", "cpuicon_blue.ico");
+                        device.TextColor = Color.FromArgb(130, 228, 255);
+                        device.IconPath = Path.Combine(Application.StartupPath, "Resources", "cpuicon_blue.ico");
+                        break;
+                    case "thermal":
+                        device.TextColor = GetThermalColor(device.CurrentTemp);
+                        device.IconPath = Path.Combine(Application.StartupPath, "Resources", "cpuicon.ico");
                         break;
                 }
 
-                notifyIcon_CPU.Icon?.Dispose();
-                CPU_Icon = Image.FromFile(CPU_Icon_Path);
-                notifyIcon_CPU.Icon = CreateCPUIcon(currentTemp_CPU);
-                SaveSettings_CPU();
+                device.NotifyIcon.Icon?.Dispose();
+                device.IconImage = Image.FromFile(device.IconPath);
+                device.NotifyIcon.Icon = CreateCPUIcon(device, device.CurrentTemp);
+                SaveSettings_CPU(device, deviceIndex);
             }
         }
 
-        private void SaveSettings_CPU()
+        private void SaveSettings_CPU(CPUDeviceState device, int deviceIndex)
         {
-            Properties.Settings.Default.ColorMode_CPU = CPU_colorMode;
-            Properties.Settings.Default.TextColor_CPU = CPU_Color;
-            Properties.Settings.Default.IconPath_CPU = CPU_Icon_Path;
+            string suffix = deviceIndex == 0 ? "" : "_" + deviceIndex;
+
+            Properties.Settings.Default["ColorMode_CPU" + suffix] = device.ColorMode;
+            Properties.Settings.Default["TextColor_CPU" + suffix] = device.TextColor;
+            Properties.Settings.Default["IconPath_CPU" + suffix] = device.IconPath;
             Properties.Settings.Default.Save();
         }
 
-        private void LoadSettings_CPU()
+        private void LoadSettings_CPU(CPUDeviceState device, int deviceIndex)
         {
-            CPU_Icon_Path = Properties.Settings.Default.IconPath_CPU;
-            CPU_colorMode = Properties.Settings.Default.ColorMode_CPU;
-            CPU_Color = Properties.Settings.Default.TextColor_CPU;
+            string suffix = deviceIndex == 0 ? "" : "_" + deviceIndex;
+
+            string colorMode = GetSettingValue("ColorMode_CPU" + suffix, "thermal");
+            Color textColor = GetSettingColor("TextColor_CPU" + suffix, GetThermalColor(0));
+            string iconPath = GetSettingValue("IconPath_CPU" + suffix, "");
+
+            device.ColorMode = colorMode;
+            device.TextColor = textColor;
+            device.IconPath = iconPath;
 
             // First launch
-            if (CPU_Icon_Path == string.Empty)
+            if (string.IsNullOrEmpty(device.IconPath))
             {
-                if (IsWindowsThemeLight())
-                {
-                    CPU_colorMode = "dark";
-                    CPU_Color = Color.FromArgb(0, 0, 0);
-                    CPU_Icon_Path = Path.Combine(Application.StartupPath, "Resources", "cpuicon_dark.ico");
-                }
-                else
-                {
-                    CPU_colorMode = "light";
-                    CPU_Color = Color.FromArgb(255, 255, 255);
-                    CPU_Icon_Path = Path.Combine(Application.StartupPath, "Resources", "cpuicon.ico");
-                }
+                device.ColorMode = "thermal";
+                device.TextColor = GetThermalColor(device.CurrentTemp);
+                device.IconPath = Path.Combine(Application.StartupPath, "Resources", "cpuicon.ico");
 
-                SaveSettings_CPU();
+                SaveSettings_CPU(device, deviceIndex);
+            }
+        }
+
+        private string GetSettingValue(string key, string defaultValue)
+        {
+            var val = Properties.Settings.Default[key];
+            if (val == null || string.IsNullOrEmpty(val.ToString()))
+                return defaultValue;
+            return val.ToString();
+        }
+
+        private Color GetSettingColor(string key, Color defaultValue)
+        {
+            var val = Properties.Settings.Default[key];
+            if (val == null)
+                return defaultValue;
+            try
+            {
+                return (Color)val;
+            }
+            catch
+            {
+                return defaultValue;
             }
         }
     }

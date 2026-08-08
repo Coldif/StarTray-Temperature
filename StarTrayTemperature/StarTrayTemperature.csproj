@@ -28,7 +28,7 @@
     <PublisherName>justinnas</PublisherName>
     <SuiteName>StarTray</SuiteName>
     <ApplicationRevision>0</ApplicationRevision>
-    <ApplicationVersion>1.1.0.%2a</ApplicationVersion>
+    <ApplicationVersion>1.2.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
@@ -132,6 +132,7 @@
     <Compile Include="IconTray.Designer.cs">
       <DependentUpon>IconTray.cs</DependentUpon>
     </Compile>
+    <Compile Include="Hardware\HardwareInfo.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -173,18 +174,45 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Resources\cpuicon.ico" />
-    <Content Include="Resources\cpuicon_blue.ico" />
-    <Content Include="Resources\cpuicon_blue11.ico" />
-    <Content Include="Resources\cpuicon_dark.ico" />
-    <Content Include="Resources\cpuicon_green.ico" />
-    <Content Include="Resources\cpuicon_red.ico" />
-    <Content Include="Resources\gpuicon.ico" />
-    <Content Include="Resources\gpuicon_blue.ico" />
-    <Content Include="Resources\gpuicon_blue11.ico" />
-    <Content Include="Resources\gpuicon_dark.ico" />
-    <Content Include="Resources\gpuicon_green.ico" />
-    <Content Include="Resources\gpuicon_red.ico" />
+    <Content Include="Resources\cpuicon.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\cpuicon_blue.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\cpuicon_blue11.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\cpuicon_dark.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\cpuicon_green.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\cpuicon_red.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\gpuicon.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\gpuicon_blue.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\gpuicon_blue11.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\gpuicon_dark.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\gpuicon_green.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\gpuicon_red.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\font.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="startray_icon.ico" />
   </ItemGroup>
   <ItemGroup />

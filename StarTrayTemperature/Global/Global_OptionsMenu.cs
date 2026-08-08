@@ -9,6 +9,9 @@ namespace StarTrayTemperature
 {
     public partial class IconTray : Form
     {
+        private bool showCPU = true;
+        private bool showGPU = true;
+
         private void LoadGlobalSettings()
         {
             useFahrenheit = Properties.Settings.Default.UseFahrenheit;
@@ -18,29 +21,40 @@ namespace StarTrayTemperature
 
         private void ToggleGPU(object sender, EventArgs e)
         {
-            if (showCPU == false && showGPU == true) { return; }
+            bool anyCPUVisible = false;
+            foreach (var cpu in cpuDevices)
+            {
+                if (cpu.Visible) { anyCPUVisible = true; break; }
+            }
+
+            if (!anyCPUVisible && showGPU) return;
 
             showGPU = !showGPU;
 
-            if (showGPU == false)
+            if (!showGPU)
             {
-                StopGPU();
+                StopGPUDevices();
             }
             else
             {
-                StartGPU();
+                StartGPUDevices();
             }
 
-            if (showGPU)
+            foreach (var cpuDevice in cpuDevices)
             {
-                showGPUMenuItem_CPU.Checked = showGPU;
-                showGPUMenuItem_GPU.Checked = showGPU;
-            }
-            else
-            {
-                showGPUMenuItem_CPU.Checked = showGPU;
+                if (cpuDevice.ShowGPUMenuItem != null)
+                {
+                    cpuDevice.ShowGPUMenuItem.Checked = showGPU;
+                }
             }
 
+            foreach (var gpuDevice in gpuDevices)
+            {
+                if (gpuDevice.ToggleMenuItem != null)
+                {
+                    gpuDevice.ToggleMenuItem.Checked = gpuDevice.Visible;
+                }
+            }
 
             GC.Collect();
 
@@ -50,27 +64,39 @@ namespace StarTrayTemperature
 
         private void ToggleCPU(object sender, EventArgs e)
         {
-            if (showCPU == true && showGPU == false) { return; }
+            bool anyGPUVisible = false;
+            foreach (var gpu in gpuDevices)
+            {
+                if (gpu.Visible) { anyGPUVisible = true; break; }
+            }
+
+            if (!anyGPUVisible && showCPU) return;
 
             showCPU = !showCPU;
 
-            if (showCPU == false)
+            if (!showCPU)
             {
-                StopCPU();
+                StopCPUDevices();
             }
             else
             {
-                StartCPU();
+                StartCPUDevices();
             }
 
-            if (showCPU)
+            foreach (var gpuDevice in gpuDevices)
             {
-                showCPUMenuItem_CPU.Checked = showGPU;
-                showCPUMenuItem_GPU.Checked = showGPU;
+                if (gpuDevice.ShowCPUMenuItem != null)
+                {
+                    gpuDevice.ShowCPUMenuItem.Checked = showCPU;
+                }
             }
-            else
+
+            foreach (var cpuDevice in cpuDevices)
             {
-                showCPUMenuItem_GPU.Checked = showCPU;
+                if (cpuDevice.ToggleMenuItem != null)
+                {
+                    cpuDevice.ToggleMenuItem.Checked = cpuDevice.Visible;
+                }
             }
 
             GC.Collect();
@@ -81,8 +107,16 @@ namespace StarTrayTemperature
 
         private void RunOnStartup_Click(object sender, EventArgs e)
         {
-            if (showCPU) startupMenuItem_CPU.Checked = !startupMenuItem_CPU.Checked;
-            if (showGPU) startupMenuItem_GPU.Checked = !startupMenuItem_GPU.Checked;
+            foreach (var cpu in cpuDevices)
+            {
+                if (cpu.StartupMenuItem != null)
+                    cpu.StartupMenuItem.Checked = !cpu.StartupMenuItem.Checked;
+            }
+            foreach (var gpu in gpuDevices)
+            {
+                if (gpu.StartupMenuItem != null)
+                    gpu.StartupMenuItem.Checked = !gpu.StartupMenuItem.Checked;
+            }
 
             if (!IsTaskScheduled())
             {
@@ -130,31 +164,23 @@ namespace StarTrayTemperature
 
         private void ChangeScale_Click(object sender, EventArgs e)
         {
-            if (showCPU)
-            {
-                if (useFahrenheit)
-                {
-                    changeScale_CPU.Text = "Change to Fahrenheit";
-                }
-                else
-                {
-                    changeScale_CPU.Text = "Change to Celsius";
-                }
-            }
-
-            if (showGPU)
-            {
-                if (useFahrenheit)
-                {
-                    changeScale_GPU.Text = "Change to Fahrenheit";
-                }
-                else
-                {
-                    changeScale_GPU.Text = "Change to Celsius";
-                }
-            }
-
             useFahrenheit = !useFahrenheit;
+
+            foreach (var cpu in cpuDevices)
+            {
+                if (cpu.ChangeScaleMenuItem != null)
+                {
+                    cpu.ChangeScaleMenuItem.Text = useFahrenheit ? "Change to Celsius" : "Change to Fahrenheit";
+                }
+            }
+
+            foreach (var gpu in gpuDevices)
+            {
+                if (gpu.ChangeScaleMenuItem != null)
+                {
+                    gpu.ChangeScaleMenuItem.Text = useFahrenheit ? "Change to Celsius" : "Change to Fahrenheit";
+                }
+            }
 
             Properties.Settings.Default.UseFahrenheit = useFahrenheit;
             Properties.Settings.Default.Save();

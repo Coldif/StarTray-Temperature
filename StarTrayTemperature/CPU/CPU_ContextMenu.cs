@@ -10,102 +10,102 @@ namespace StarTrayTemperature
 {
     public partial class IconTray : Form
     {
-        private ContextMenu contextMenu_CPU;
-        private MenuItem startupMenuItem_CPU;
-        private MenuItem showCPUMenuItem_CPU;
-        private MenuItem showGPUMenuItem_CPU;
-        private MenuItem changeScale_CPU;
-
-        private void InitializeCPUContextMenu()
+        private void InitializeCPUContextMenu(CPUDeviceState device, int deviceIndex)
         {
-            contextMenu_CPU = new ContextMenu();
+            device.ContextMenu = new ContextMenu();
 
-            string cpuName = GetCpuName();
+            string headerLabel = cpuDevices.Count > 1
+                ? AppLabel + " (CPU " + (deviceIndex + 1) + ")"
+                : AppLabel + " (CPU)";
 
             // -- Header --
-            contextMenu_CPU.MenuItems.Add(new MenuItem(AppLabel + " (CPU)") { Enabled = false });
-            contextMenu_CPU.MenuItems.Add("-");
+            device.ContextMenu.MenuItems.Add(new MenuItem(headerLabel) { Enabled = false });
+            device.ContextMenu.MenuItems.Add("-");
 
             // ------------ Themes ------------
             MenuItem colorModes = new MenuItem("CPU theme");
 
             MenuItem lightMode = new MenuItem("Light Theme");
-            lightMode.Click += LightMode_CPU_Click;
+            lightMode.Click += (s, e) => ApplyCPUTheme("light", device, deviceIndex);
             colorModes.MenuItems.Add(lightMode);
 
             MenuItem darkMode = new MenuItem("Dark Theme");
-            darkMode.Click += DarkMode_CPU_Click;
+            darkMode.Click += (s, e) => ApplyCPUTheme("dark", device, deviceIndex);
             colorModes.MenuItems.Add(darkMode);
 
             MenuItem blue11Mode = new MenuItem("Blue11 Theme");
-            blue11Mode.Click += Blue11Mode_CPU_Click;
+            blue11Mode.Click += (s, e) => ApplyCPUTheme("blue11", device, deviceIndex);
             colorModes.MenuItems.Add(blue11Mode);
 
             colorModes.MenuItems.Add("-");
 
             MenuItem greenMode = new MenuItem("Green Theme");
-            greenMode.Click += GreenMode_CPU_Click;
+            greenMode.Click += (s, e) => ApplyCPUTheme("green", device, deviceIndex);
             colorModes.MenuItems.Add(greenMode);
 
             MenuItem redMode = new MenuItem("Red Theme");
-            redMode.Click += RedMode_CPU_Click;
+            redMode.Click += (s, e) => ApplyCPUTheme("red", device, deviceIndex);
             colorModes.MenuItems.Add(redMode);
 
             MenuItem blueMode = new MenuItem("Blue Theme");
-            blueMode.Click += BlueMode_CPU_Click;
+            blueMode.Click += (s, e) => ApplyCPUTheme("blue", device, deviceIndex);
             colorModes.MenuItems.Add(blueMode);
 
-            contextMenu_CPU.MenuItems.Add(colorModes);
+            colorModes.MenuItems.Add("-");
+
+            MenuItem thermalMode = new MenuItem("Thermal Theme");
+            thermalMode.Click += (s, e) => ApplyCPUTheme("thermal", device, deviceIndex);
+            colorModes.MenuItems.Add(thermalMode);
+
+            device.ContextMenu.MenuItems.Add(colorModes);
 
             // ------------ Global Options ------------
-
             MenuItem globalOptions = new MenuItem("Options");
 
             // -- Startup --
-            startupMenuItem_CPU = new MenuItem("Run on Startup");
-            startupMenuItem_CPU.Checked = IsTaskScheduled();
-            startupMenuItem_CPU.Click += RunOnStartup_Click;
-            globalOptions.MenuItems.Add(startupMenuItem_CPU);
+            device.StartupMenuItem = new MenuItem("Run on Startup");
+            device.StartupMenuItem.Checked = IsTaskScheduled();
+            device.StartupMenuItem.Click += RunOnStartup_Click;
+            globalOptions.MenuItems.Add(device.StartupMenuItem);
+
+            // -- Show this CPU --
+            device.ToggleMenuItem = new MenuItem("Show CPU " + (deviceIndex + 1) + " icon");
+            device.ToggleMenuItem.Checked = device.Visible;
+            device.ToggleMenuItem.Click += (s, e) => ToggleSpecificCPU(deviceIndex);
+            globalOptions.MenuItems.Add(device.ToggleMenuItem);
 
             // -- Show GPU --
-            showGPUMenuItem_CPU = new MenuItem("Show GPU icon");
-            showGPUMenuItem_CPU.Checked = showGPU;
-            showGPUMenuItem_CPU.Click += ToggleGPU;
-            globalOptions.MenuItems.Add(showGPUMenuItem_CPU);
-
-            // -- Show CPU --
-            showCPUMenuItem_CPU = new MenuItem("Show CPU icon");
-            showCPUMenuItem_CPU.Checked = showCPU;
-            showCPUMenuItem_CPU.Click += ToggleCPU;
-            globalOptions.MenuItems.Add(showCPUMenuItem_CPU);
+            device.ShowGPUMenuItem = new MenuItem("Show GPU icon");
+            device.ShowGPUMenuItem.Checked = showGPU;
+            device.ShowGPUMenuItem.Click += ToggleGPU;
+            globalOptions.MenuItems.Add(device.ShowGPUMenuItem);
 
             // -- Change Scale --
-            changeScale_CPU = new MenuItem("Change to Fahrenheit");
+            device.ChangeScaleMenuItem = new MenuItem("Change to Fahrenheit");
             if (useFahrenheit)
             {
-                changeScale_CPU.Text = "Change to Celsius";
+                device.ChangeScaleMenuItem.Text = "Change to Celsius";
             }
-            changeScale_CPU.Click += ChangeScale_Click;
-            globalOptions.MenuItems.Add(changeScale_CPU);
+            device.ChangeScaleMenuItem.Click += ChangeScale_Click;
+            globalOptions.MenuItems.Add(device.ChangeScaleMenuItem);
 
-            contextMenu_CPU.MenuItems.Add(globalOptions);
+            device.ContextMenu.MenuItems.Add(globalOptions);
 
             // -------------- More info --------------
-
             MenuItem information = new MenuItem("Info");
 
             information.MenuItems.Add(new MenuItem("Processor:") { Enabled = false });
-            information.MenuItems.Add(new MenuItem(cpuName) { Enabled = false });
+            information.MenuItems.Add(new MenuItem(device.Info.Name) { Enabled = false });
             information.MenuItems.Add("-");
             information.MenuItems.Add(new MenuItem(AppLabel + " " + VersionLabel + " " + CopyrightLabel) { Enabled = false });
 
-            contextMenu_CPU.MenuItems.Add(information);
+            device.ContextMenu.MenuItems.Add(information);
 
             // ------------ Exit ------------
-            contextMenu_CPU.MenuItems.Add("-");
+            device.ContextMenu.MenuItems.Add("-");
             MenuItem exitMenuItem = new MenuItem("Exit");
             exitMenuItem.Click += ExitMenuItem_Click;
-            contextMenu_CPU.MenuItems.Add(exitMenuItem);
+            device.ContextMenu.MenuItems.Add(exitMenuItem);
         }
 
         static string GetCpuName()
@@ -119,6 +119,35 @@ namespace StarTrayTemperature
             }
 
             return cpuName;
+        }
+
+        static List<string> GetAllCpuNames()
+        {
+            List<string> cpuNames = new List<string>();
+            ManagementObjectSearcher searcher = new ManagementObjectSearcher("select Name from Win32_Processor");
+
+            foreach (ManagementObject obj in searcher.Get())
+            {
+                cpuNames.Add(obj["Name"].ToString());
+            }
+
+            return cpuNames;
+        }
+
+        private void ToggleSpecificCPU(int deviceIndex)
+        {
+            if (deviceIndex < 0 || deviceIndex >= cpuDevices.Count) return;
+
+            var device = cpuDevices[deviceIndex];
+            device.Visible = !device.Visible;
+            device.NotifyIcon.Visible = device.Visible;
+
+            SetShowCPUSetting(deviceIndex, device.Visible);
+
+            if (device.ToggleMenuItem != null)
+                device.ToggleMenuItem.Checked = device.Visible;
+
+            GC.Collect();
         }
     }
 }
